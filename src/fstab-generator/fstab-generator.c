@@ -67,6 +67,7 @@ static char *arg_root_fstype = NULL;
 static char *arg_root_options = NULL;
 static char *arg_root_hash = NULL;
 static int arg_root_rw = -1;
+static bool arg_secondstageroot = false;
 static char *arg_usr_what = NULL;
 static char *arg_usr_fstype = NULL;
 static char *arg_usr_options = NULL;
@@ -1347,12 +1348,23 @@ static int parse_proc_cmdline_item(const char *key, const char *value, void *dat
                 else
                         arg_fstab_enabled = r;
 
-        } else if (streq(key, "root")) {
+        } else if (!arg_secondstageroot && streq(key, "root")) {
 
                 if (proc_cmdline_value_missing(key, value))
                         return 0;
 
                 return free_and_strdup_warn(&arg_root_what, empty_to_null(value));
+
+        } else if (streq(key, "secondstageroot")) {
+
+                if (proc_cmdline_value_missing(key, value))
+                        return 0;
+
+                r = free_and_strdup_warn(&arg_root_what, empty_to_null(value));
+                if (r >= 0)
+                        arg_secondstageroot = true;
+
+                return r;
 
         } else if (streq(key, "rootfstype")) {
 
